@@ -32,10 +32,9 @@
 > - [📂 Repository Structure](#-repository-structure)
 > - [🚀 Getting Started](#-getting-started)
 >   - [⚙️ Installation](#️-installation)
->   - [🤖 Running Capstone-Project](#-running-Capstone-Project)
+>   - [🤖 Running Swar](#-running-swar)
 >   - [🧪 Tests](#-tests)
 > - [📄 License](#-license)
-> - [👏 Acknowledgments](#-acknowledgments)
 
 ---
 
@@ -66,7 +65,7 @@ Swar is a music streaming platform that provides users with a wide range of musi
 ## 📂 Repository Structure
 
 ```sh
-└── Capstone-Project/
+└── Swar/
     ├── .github
     │   └── workflows
     │       ├── SongServiceAPI.yml
@@ -365,16 +364,16 @@ Swar is a music streaming platform that provides users with a wide range of musi
 
 ### ⚙️ Installation
 
-1. Clone the Capstone-Project repository:
+1. Clone the Swar repository:
 
 ```sh
-git clone https://github.com/neeraj779/Capstone-Project
+git clone https://github.com/neeraj779/Swar
 ```
 
 2. Change to the project directory:
 
 ```sh
-cd Capstone-Project/<project-directory>
+cd Swar/<project-directory>
 ```
 
 3. Install the dependencies:
@@ -383,9 +382,9 @@ cd Capstone-Project/<project-directory>
 dotnet build
 ```
 
-### 🤖 Running Capstone-Project
+### 🤖 Running Swar
 
-Use the following command to run Capstone-Project:
+Use the following command to run Swar:
 
 ```sh
 dotnet run
