@@ -13,22 +13,22 @@ const Footer = () => {
           <Link
             isBlock
             showAnchorIcon
+            href="https://neeraj.rocks"
+            target="_blank"
+            color="primary"
+            size="sm"
+          >
+            Portfolio
+          </Link>
+          <Link
+            isBlock
+            showAnchorIcon
             href="https://github.com/neeraj779"
             target="_blank"
             color="primary"
             size="sm"
           >
             Github
-          </Link>
-          <Link
-            isBlock
-            showAnchorIcon
-            href="https://instagram.com/neeraj779_"
-            target="_blank"
-            color="primary"
-            size="sm"
-          >
-            Instagram
           </Link>
         </div>
       </div>
