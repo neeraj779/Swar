@@ -1,35 +1,44 @@
 import { Link } from "@nextui-org/react";
+import { FaHeart } from "react-icons/fa";
 const Footer = () => {
   return (
     <footer>
-      <div className="px-6 mx-auto text-center max-w-7xl">
-        <p className="text-sm">
-          Made with ❤️ by{" "}
-          <a href="https://github.com/neeraj779" target="_blank">
-            Neeraj
-          </a>
-        </p>
-        <div className="ml-2">
-          <Link
-            isBlock
-            showAnchorIcon
-            href="https://neeraj.rocks"
-            target="_blank"
-            color="primary"
-            size="sm"
-          >
-            Portfolio
-          </Link>
-          <Link
-            isBlock
-            showAnchorIcon
-            href="https://github.com/neeraj779"
-            target="_blank"
-            color="primary"
-            size="sm"
-          >
-            Github
-          </Link>
+      <div className="container px-4 mx-auto">
+        <div className="flex flex-col items-center justify-center space-y-2">
+          <div className="flex items-center space-x-2 text-lg">
+            <span>Made with</span>
+            <FaHeart className="text-red-500 animate-pulse" size={20} />
+            <span>by</span>
+            <a
+              href="https://github.com/neeraj779"
+              target="_blank"
+              className="font-bold transition-colors duration-300 hover:text-blue-400"
+            >
+              Neeraj
+            </a>
+          </div>
+          <div>
+            <Link
+              isBlock
+              showAnchorIcon
+              href="https://neeraj.rocks"
+              target="_blank"
+              color="primary"
+              size="sm"
+            >
+              Portfolio
+            </Link>
+            <Link
+              isBlock
+              showAnchorIcon
+              href="https://github.com/neeraj779"
+              target="_blank"
+              color="primary"
+              size="sm"
+            >
+              Github
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
