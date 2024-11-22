@@ -5,7 +5,7 @@ const Footer = () => {
     <footer>
       <div className="container px-4 mx-auto">
         <div className="flex flex-col items-center justify-center space-y-2">
-          <div className="flex items-center space-x-2 text-lg">
+          <div className="flex items-center space-x-2 text-md">
             <span>Made with</span>
             <FaHeart className="text-red-500 animate-pulse" size={20} />
             <span>by</span>
