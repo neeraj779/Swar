@@ -15,7 +15,7 @@ import {
 import usePlaylistInfo from "../../hooks/usePlaylistInfo";
 import toast from "react-hot-toast";
 import usePlaylistActionsBase from "../../hooks/usePlaylistActionsBase";
-import { LuPlusCircle } from "react-icons/lu";
+import { LuCirclePlus } from "react-icons/lu";
 
 const PlaylistInfoModal = ({ songId }) => {
   const {
@@ -44,7 +44,7 @@ const PlaylistInfoModal = ({ songId }) => {
   return (
     <>
       <button onClick={onOpen}>
-        <LuPlusCircle className="text-3xl text-white" />
+        <LuCirclePlus className="text-3xl text-white" />
       </button>
       <Modal
         isOpen={isOpen}
