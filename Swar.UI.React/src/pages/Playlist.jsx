@@ -8,7 +8,7 @@ import {
   DropdownItem,
   Button,
   cn,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import { DeleteIcon } from "../components/Icons";
 
 import useUserplaylistSongs from "../hooks/useUserPlaylistSongs";

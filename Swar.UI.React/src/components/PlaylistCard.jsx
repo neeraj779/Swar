@@ -9,7 +9,7 @@ import {
   Button,
   useDisclosure,
   cn,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import PlaylistModal from "./modals/PlaylistModal";
 import { CopyIcon, EditIcon, DeleteIcon } from "../components/Icons";
 import { IoMdMore, IoMdLock, IoMdUnlock } from "react-icons/io";

@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { FaHome } from "react-icons/fa";
 import { IoLibrary } from "react-icons/io5";
 import { useAuth0 } from "@auth0/auth0-react";
-import { Avatar } from "@nextui-org/react";
+import { Avatar } from "@heroui/react";
 
 const MobileNav = () => {
   const { user } = useAuth0();

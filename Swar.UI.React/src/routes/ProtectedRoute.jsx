@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import { Spinner } from "@nextui-org/react";
+import { Spinner } from "@heroui/react";
 import toast from "react-hot-toast";
 
 const ProtectedRoute = () => {

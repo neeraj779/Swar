@@ -6,7 +6,7 @@ import {
   Dropdown,
   DropdownMenu,
   Avatar,
-} from "@nextui-org/react";
+} from "@heroui/react";
 
 import logo from "../assets/img/logo.png";
 import profile from "../assets/img/profile.svg";

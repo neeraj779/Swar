@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Button, useDisclosure } from "@nextui-org/react";
+import { Button, useDisclosure } from "@heroui/react";
 import toast from "react-hot-toast";
 import PlaylistModal from "../components/modals/PlaylistModal";
 import PlaylistsSkeleton from "../components/PlaylistsSkeleton";

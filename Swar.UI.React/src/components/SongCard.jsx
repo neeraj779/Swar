@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
-import { Image } from "@nextui-org/react";
+import { Image } from "@heroui/react";
 
 const SongCard = ({ id, title, image, song, primary_artists }) => (
   <Link

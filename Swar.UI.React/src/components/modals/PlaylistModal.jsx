@@ -7,7 +7,7 @@ import {
   ModalFooter,
   Button,
   Checkbox,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import PropTypes from "prop-types";
 import { useState, useCallback } from "react";
 

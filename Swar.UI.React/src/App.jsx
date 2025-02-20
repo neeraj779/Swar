@@ -1,5 +1,5 @@
 import { useNavigate, Route, Routes, Navigate } from "react-router-dom";
-import { NextUIProvider } from "@nextui-org/react";
+import { HeroUIProvider } from "@heroui/react";
 import { SkeletonTheme } from "react-loading-skeleton";
 import { Toaster } from "react-hot-toast";
 
@@ -19,7 +19,7 @@ const App = () => {
   const navigate = useNavigate();
 
   return (
-    <NextUIProvider navigate={navigate}>
+    <HeroUIProvider navigate={navigate}>
       <SkeletonTheme baseColor="#6B7280" highlightColor="#4B5563">
         <PlayerProvider>
           <Layout>
@@ -46,7 +46,7 @@ const App = () => {
           </Layout>
         </PlayerProvider>
       </SkeletonTheme>
-    </NextUIProvider>
+    </HeroUIProvider>
   );
 };
 

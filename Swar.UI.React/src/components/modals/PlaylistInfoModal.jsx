@@ -11,7 +11,7 @@ import {
   RadioGroup,
   Radio,
   Spinner,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import usePlaylistInfo from "../../hooks/usePlaylistInfo";
 import toast from "react-hot-toast";
 import usePlaylistActionsBase from "../../hooks/usePlaylistActionsBase";

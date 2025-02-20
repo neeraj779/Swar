@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import useRecentlyPlayedSongs from "../hooks/useRecentlyPlayedSongs";
-import { User, Image, Divider } from "@nextui-org/react";
+import { User, Image, Divider } from "@heroui/react";
 import { CustomScroll } from "react-custom-scroll";
 import toast from "react-hot-toast";
 import useApiClient from "../hooks/useApiClient";

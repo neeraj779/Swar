@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import { Button } from "@nextui-org/react";
+import { Button } from "@heroui/react";
 import { FaPlay, FaListUl, FaCloudDownloadAlt, FaLaptop } from "react-icons/fa";
 import Typewriter from "typewriter-effect";
 import InstallPWA from "../components/InstallPWA";

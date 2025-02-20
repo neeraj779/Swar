@@ -10,7 +10,7 @@ import {
   CardHeader,
   Divider,
   Spinner,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import { CustomScroll } from "react-custom-scroll";
 import toast from "react-hot-toast";
 import { Download, Pause, Play, Repeat } from "lucide-react";

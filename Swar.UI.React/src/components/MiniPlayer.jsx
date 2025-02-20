@@ -2,7 +2,7 @@ import { useNavigate, useMatch } from "react-router-dom";
 import usePlayer from "../hooks/usePlayer";
 import { useAuth0 } from "@auth0/auth0-react";
 import { FaPlay, FaPause } from "react-icons/fa";
-import { Progress } from "@nextui-org/react";
+import { Progress } from "@heroui/react";
 
 const MiniPlayer = () => {
   const { isAuthenticated } = useAuth0();
