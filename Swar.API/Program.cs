@@ -164,6 +164,12 @@ public class Program
 
         app.MapControllers();
 
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<SwarContext>();
+            db.Database.Migrate();
+        }
+
         app.Run();
     }
 }
