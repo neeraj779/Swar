@@ -1,13 +1,13 @@
-﻿namespace Swar.API.Exceptions
-{
-    public class InvalidRefreshTokenException : Exception
-    {
-        string _message;
+﻿namespace Swar.API.Exceptions;
 
-        public InvalidRefreshTokenException()
-        {
-            _message = "Invalid refresh token";
-        }
-        public override string Message => _message;
+public class InvalidRefreshTokenException : Exception
+{
+    private readonly string _message;
+
+    public InvalidRefreshTokenException()
+    {
+        _message = "Invalid refresh token";
     }
+
+    public override string Message => _message;
 }

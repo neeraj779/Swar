@@ -1,7 +1,6 @@
-﻿namespace Swar.API.Models.DTOs
+﻿namespace Swar.API.Models.DTOs;
+
+public class PlaylistInfoDTO : ReturnPlaylistDTO
 {
-    public class PlaylistInfoDTO : ReturnPlaylistDTO
-    {
-        public int SongsCount { get; set; }
-    }
+    public int SongsCount { get; set; }
 }

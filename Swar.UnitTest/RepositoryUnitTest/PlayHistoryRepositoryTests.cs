@@ -4,186 +4,185 @@ using Swar.API.Exceptions;
 using Swar.API.Models.DBModels;
 using Swar.API.Repositories;
 
-namespace Swar.UnitTest.RepositoryUnitTest
+namespace Swar.UnitTest.RepositoryUnitTest;
+
+[TestFixture]
+public class PlayHistoryRepositoryTests
 {
-    [TestFixture]
-    public class PlayHistoryRepositoryTests
+    [SetUp]
+    public void Setup()
     {
-        private PlayHistoryRepository _repository;
-        private SwarContext _context;
+        var options = new DbContextOptionsBuilder<SwarContext>()
+            .UseInMemoryDatabase("PlayHistoryTestDatabase")
+            .Options;
 
-        [SetUp]
-        public void Setup()
+        _context = new SwarContext(options);
+        _repository = new PlayHistoryRepository(_context);
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        _context.Database.EnsureDeleted();
+        _context.Dispose();
+    }
+
+    private PlayHistoryRepository _repository;
+    private SwarContext _context;
+
+    [Test]
+    public async Task Add_ShouldAddEntity()
+    {
+        var playHistory = new PlayHistory
         {
-            var options = new DbContextOptionsBuilder<SwarContext>()
-                .UseInMemoryDatabase(databaseName: "PlayHistoryTestDatabase")
-                .Options;
+            HistoryId = 1,
+            SongId = "song123",
+            PlayedAt = DateTime.Now,
+            UserId = 1
+        };
 
-            _context = new SwarContext(options);
-            _repository = new PlayHistoryRepository(_context);
-        }
+        var addedPlayHistory = await _repository.Add(playHistory);
 
-        [TearDown]
-        public void TearDown()
+        Assert.That(addedPlayHistory, Is.Not.Null);
+        Assert.That(addedPlayHistory.HistoryId, Is.EqualTo(playHistory.HistoryId));
+        Assert.That(addedPlayHistory.SongId, Is.EqualTo(playHistory.SongId));
+        Assert.That(addedPlayHistory.PlayedAt, Is.EqualTo(playHistory.PlayedAt));
+        Assert.That(addedPlayHistory.UserId, Is.EqualTo(playHistory.UserId));
+    }
+
+    [Test]
+    public async Task Add_ShouldThrowExceptionWhenEntityAlreadyExists()
+    {
+        var playHistory = new PlayHistory
         {
-            _context.Database.EnsureDeleted();
-            _context.Dispose();
-        }
+            HistoryId = 1,
+            SongId = "song123",
+            PlayedAt = DateTime.Now,
+            UserId = 1
+        };
 
-        [Test]
-        public async Task Add_ShouldAddEntity()
+        await _repository.Add(playHistory);
+
+        Assert.ThrowsAsync<ArgumentException>(async () => await _repository.Add(playHistory));
+    }
+
+    [Test]
+    public async Task GetById_ShouldReturnEntity_WhenExists()
+    {
+        var playHistory = new PlayHistory
         {
-            var playHistory = new PlayHistory
-            {
-                HistoryId = 1,
-                SongId = "song123",
-                PlayedAt = DateTime.Now,
-                UserId = 1
-            };
+            HistoryId = 1,
+            SongId = "song123",
+            PlayedAt = DateTime.Now,
+            UserId = 1
+        };
 
-            var addedPlayHistory = await _repository.Add(playHistory);
+        await _repository.Add(playHistory);
 
-            Assert.That(addedPlayHistory, Is.Not.Null);
-            Assert.That(addedPlayHistory.HistoryId, Is.EqualTo(playHistory.HistoryId));
-            Assert.That(addedPlayHistory.SongId, Is.EqualTo(playHistory.SongId));
-            Assert.That(addedPlayHistory.PlayedAt, Is.EqualTo(playHistory.PlayedAt));
-            Assert.That(addedPlayHistory.UserId, Is.EqualTo(playHistory.UserId));
-        }
+        var result = await _repository.GetById(1);
 
-        [Test]
-        public async Task Add_ShouldThrowExceptionWhenEntityAlreadyExists()
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.HistoryId, Is.EqualTo(playHistory.HistoryId));
+        Assert.That(result.SongId, Is.EqualTo(playHistory.SongId));
+        Assert.That(result.PlayedAt, Is.EqualTo(playHistory.PlayedAt));
+        Assert.That(result.UserId, Is.EqualTo(playHistory.UserId));
+    }
+
+    [Test]
+    public async Task GetById_ShouldReturnNull_WhenEntityNotFound()
+    {
+        var result = await _repository.GetById(999);
+
+        Assert.That(result, Is.Null);
+    }
+
+    [Test]
+    public async Task Update_ShouldModifyEntity()
+    {
+        var playHistory = new PlayHistory
         {
-            var playHistory = new PlayHistory
-            {
-                HistoryId = 1,
-                SongId = "song123",
-                PlayedAt = DateTime.Now,
-                UserId = 1
-            };
+            HistoryId = 1,
+            SongId = "song123",
+            PlayedAt = DateTime.Now,
+            UserId = 1
+        };
 
-            await _repository.Add(playHistory);
+        await _repository.Add(playHistory);
 
-            Assert.ThrowsAsync<ArgumentException>(async () => await _repository.Add(playHistory));
-        }
+        playHistory.SongId = "updatedSong";
+        await _repository.Update(playHistory);
 
-        [Test]
-        public async Task GetById_ShouldReturnEntity_WhenExists()
+        var updatedPlayHistory = await _repository.GetById(1);
+
+        Assert.That(updatedPlayHistory, Is.Not.Null);
+        Assert.That(updatedPlayHistory.SongId, Is.EqualTo("updatedSong"));
+    }
+
+    [Test]
+    public void Update_ShouldThrowException_WhenEntityNotFound()
+    {
+        var playHistory = new PlayHistory
         {
-            var playHistory = new PlayHistory
-            {
-                HistoryId = 1,
-                SongId = "song123",
-                PlayedAt = DateTime.Now,
-                UserId = 1
-            };
+            HistoryId = 999,
+            SongId = "song123",
+            PlayedAt = DateTime.Now,
+            UserId = 1
+        };
 
-            await _repository.Add(playHistory);
+        Assert.ThrowsAsync<DbUpdateConcurrencyException>(async () => await _repository.Update(playHistory));
+    }
 
-            var result = await _repository.GetById(1);
-
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.HistoryId, Is.EqualTo(playHistory.HistoryId));
-            Assert.That(result.SongId, Is.EqualTo(playHistory.SongId));
-            Assert.That(result.PlayedAt, Is.EqualTo(playHistory.PlayedAt));
-            Assert.That(result.UserId, Is.EqualTo(playHistory.UserId));
-        }
-
-        [Test]
-        public async Task GetById_ShouldReturnNull_WhenEntityNotFound()
+    [Test]
+    public async Task Delete_ShouldRemoveEntity_WhenExists()
+    {
+        var playHistory = new PlayHistory
         {
-            var result = await _repository.GetById(999);
+            HistoryId = 1,
+            SongId = "song123",
+            PlayedAt = DateTime.Now,
+            UserId = 1
+        };
 
-            Assert.That(result, Is.Null);
-        }
+        await _repository.Add(playHistory);
+        await _repository.Delete(1);
 
-        [Test]
-        public async Task Update_ShouldModifyEntity()
+        var deletedPlayHistory = await _repository.GetById(1);
+
+        Assert.That(deletedPlayHistory, Is.Null);
+    }
+
+    [Test]
+    public void Delete_ShouldThrowException_WhenEntityNotFound()
+    {
+        Assert.ThrowsAsync<EntityNotFoundException>(async () => await _repository.Delete(999));
+    }
+
+    [Test]
+    public async Task GetAll_ShouldReturnAllEntities()
+    {
+        var playHistory1 = new PlayHistory
         {
-            var playHistory = new PlayHistory
-            {
-                HistoryId = 1,
-                SongId = "song123",
-                PlayedAt = DateTime.Now,
-                UserId = 1
-            };
+            HistoryId = 1,
+            SongId = "song123",
+            PlayedAt = DateTime.Now,
+            UserId = 1
+        };
 
-            await _repository.Add(playHistory);
-
-            playHistory.SongId = "updatedSong";
-            await _repository.Update(playHistory);
-
-            var updatedPlayHistory = await _repository.GetById(1);
-
-            Assert.That(updatedPlayHistory, Is.Not.Null);
-            Assert.That(updatedPlayHistory.SongId, Is.EqualTo("updatedSong"));
-        }
-
-        [Test]
-        public void Update_ShouldThrowException_WhenEntityNotFound()
+        var playHistory2 = new PlayHistory
         {
-            var playHistory = new PlayHistory
-            {
-                HistoryId = 999,
-                SongId = "song123",
-                PlayedAt = DateTime.Now,
-                UserId = 1
-            };
+            HistoryId = 2,
+            SongId = "song456",
+            PlayedAt = DateTime.Now,
+            UserId = 2
+        };
 
-            Assert.ThrowsAsync<DbUpdateConcurrencyException>(async () => await _repository.Update(playHistory));
-        }
+        await _repository.Add(playHistory1);
+        await _repository.Add(playHistory2);
 
-        [Test]
-        public async Task Delete_ShouldRemoveEntity_WhenExists()
-        {
-            var playHistory = new PlayHistory
-            {
-                HistoryId = 1,
-                SongId = "song123",
-                PlayedAt = DateTime.Now,
-                UserId = 1
-            };
+        var allPlayHistories = await _repository.GetAll();
 
-            await _repository.Add(playHistory);
-            await _repository.Delete(1);
-
-            var deletedPlayHistory = await _repository.GetById(1);
-
-            Assert.That(deletedPlayHistory, Is.Null);
-        }
-
-        [Test]
-        public void Delete_ShouldThrowException_WhenEntityNotFound()
-        {
-            Assert.ThrowsAsync<EntityNotFoundException>(async () => await _repository.Delete(999));
-        }
-
-        [Test]
-        public async Task GetAll_ShouldReturnAllEntities()
-        {
-            var playHistory1 = new PlayHistory
-            {
-                HistoryId = 1,
-                SongId = "song123",
-                PlayedAt = DateTime.Now,
-                UserId = 1
-            };
-
-            var playHistory2 = new PlayHistory
-            {
-                HistoryId = 2,
-                SongId = "song456",
-                PlayedAt = DateTime.Now,
-                UserId = 2
-            };
-
-            await _repository.Add(playHistory1);
-            await _repository.Add(playHistory2);
-
-            var allPlayHistories = await _repository.GetAll();
-
-            Assert.That(allPlayHistories.Count(), Is.EqualTo(2));
-            Assert.That(allPlayHistories, Does.Contain(playHistory1));
-            Assert.That(allPlayHistories, Does.Contain(playHistory2));
-        }
+        Assert.That(allPlayHistories.Count(), Is.EqualTo(2));
+        Assert.That(allPlayHistories, Does.Contain(playHistory1));
+        Assert.That(allPlayHistories, Does.Contain(playHistory2));
     }
 }

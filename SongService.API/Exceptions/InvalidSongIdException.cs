@@ -1,12 +1,13 @@
-﻿namespace SongService.API.Exceptions
+﻿namespace SongService.API.Exceptions;
+
+public class InvalidSongIdException : Exception
 {
-    public class InvalidSongIdException : Exception
+    private readonly string _message;
+
+    public InvalidSongIdException()
     {
-        string _message;
-        public InvalidSongIdException()
-        {
-            _message = "Invalid song id";
-        }
-        public override string Message => _message;
+        _message = "Invalid song id";
     }
+
+    public override string Message => _message;
 }

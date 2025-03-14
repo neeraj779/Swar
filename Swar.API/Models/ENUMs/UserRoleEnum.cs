@@ -1,11 +1,10 @@
-﻿namespace Swar.API.Models.ENUMs
+﻿namespace Swar.API.Models.ENUMs;
+
+public class UserRoleEnum
 {
-    public class UserRoleEnum
+    public enum UserRole
     {
-        public enum UserRole
-        {
-            Admin,
-            User
-        }
+        Admin,
+        User
     }
 }

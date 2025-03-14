@@ -1,3 +1,4 @@
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -8,69 +9,68 @@ using Swar.API.Interfaces.Services;
 using Swar.API.Models.DBModels;
 using Swar.API.Repositories;
 using Swar.API.Services;
-using System.Text;
 
-namespace Swar.API
+namespace Swar.API;
+
+public class Program
 {
-    public class Program
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
+        var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+        // Add services to the container.
 
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(
-                c =>
+        builder.Services.AddControllers();
+        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen(
+            c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    c.SwaggerDoc("v1", new OpenApiInfo
+                    Title = "Swar API",
+                    Version = "v1",
+                    Description = "API for Swar",
+                    Contact = new OpenApiContact
                     {
-                        Title = "Swar API",
-                        Version = "v1",
-                        Description = "API for Swar",
-                        Contact = new OpenApiContact
-                        {
-                            Name = "Neeraj",
-                            Url = new Uri("https://github.com/neeraj779")
-                        },
-                        License = new OpenApiLicense
-                        {
-                            Name = "MIT License",
-                            Url = new Uri("https://opensource.org/licenses/MIT")
-                        },
-                    });
-
-                    var jwtSecurityScheme = new OpenApiSecurityScheme
+                        Name = "Neeraj",
+                        Url = new Uri("https://github.com/neeraj779")
+                    },
+                    License = new OpenApiLicense
                     {
-                        BearerFormat = "JWT",
-                        Name = "JWT Authentication",
-                        In = ParameterLocation.Header,
-                        Type = SecuritySchemeType.Http,
-                        Scheme = JwtBearerDefaults.AuthenticationScheme,
-                        Description = "JWT Authorization header using the Bearer scheme.",
+                        Name = "MIT License",
+                        Url = new Uri("https://opensource.org/licenses/MIT")
+                    }
+                });
 
-                        Reference = new OpenApiReference
-                        {
-                            Id = JwtBearerDefaults.AuthenticationScheme,
-                            Type = ReferenceType.SecurityScheme
-                        }
-                    };
+                var jwtSecurityScheme = new OpenApiSecurityScheme
+                {
+                    BearerFormat = "JWT",
+                    Name = "JWT Authentication",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = JwtBearerDefaults.AuthenticationScheme,
+                    Description = "JWT Authorization header using the Bearer scheme.",
 
-                    c.AddSecurityDefinition(jwtSecurityScheme.Reference.Id, jwtSecurityScheme);
+                    Reference = new OpenApiReference
+                    {
+                        Id = JwtBearerDefaults.AuthenticationScheme,
+                        Type = ReferenceType.SecurityScheme
+                    }
+                };
 
-                    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                c.AddSecurityDefinition(jwtSecurityScheme.Reference.Id, jwtSecurityScheme);
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     { jwtSecurityScheme, Array.Empty<string>() }
                 });
 
-                    var xmlPath = Path.Combine("Swar.API.xml");
-                    c.IncludeXmlComments(xmlPath);
-                });
+                var xmlPath = Path.Combine("Swar.API.xml");
+                c.IncludeXmlComments(xmlPath);
+            });
 
-            builder.Services.AddAuthentication(options =>
+        builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -84,7 +84,8 @@ namespace Swar.API
                     ValidateAudience = true,
                     ValidAudience = "https://swarapi.azurewebsites.net/api/v1/",
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["TokenKey:Access"])),
+                    IssuerSigningKey =
+                        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["TokenKey:Access"])),
                     ValidateLifetime = true
                 };
             })
@@ -95,68 +96,74 @@ namespace Swar.API
                     ValidateIssuer = false,
                     ValidateAudience = false,
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["TokenKey:Refresh"])),
+                    IssuerSigningKey =
+                        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["TokenKey:Refresh"])),
                     ValidateLifetime = true
                 };
             });
 
-            builder.Services.AddAuthorization(options =>
-            {
-                options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin, User"));
-            });
+        builder.Services.AddAuthorization(options =>
+        {
+            options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin, User"));
+        });
 
-            builder.Logging.AddLog4Net("log4net.config");
+        builder.Logging.AddLog4Net("log4net.config");
 
-            #region Context
-            builder.Services.AddDbContext<SwarContext>(
-                options => options.UseSqlite(builder.Configuration.GetConnectionString("defaultConnection")));
-            #endregion
+        #region Context
 
-            #region Repositories
-            builder.Services.AddScoped<IUserRepository, UserRepository>();
-            builder.Services.AddScoped<IRepository<int, User>, UserRepository>();
-            builder.Services.AddScoped<IPlaylistRepository, PlaylistRepository>();
-            builder.Services.AddScoped<IRepository<int, Playlist>, PlaylistRepository>();
-            builder.Services.AddScoped<IPlaylistSongsRepository, PlaylistSongsRepository>();
-            builder.Services.AddScoped<IRepository<int, LikedSong>, LikedSongsRepository>();
-            builder.Services.AddScoped<IRepository<int, PlayHistory>, PlayHistoryRepository>();
-            #endregion
+        builder.Services.AddDbContext<SwarContext>(
+            options => options.UseSqlite(builder.Configuration.GetConnectionString("defaultConnection")));
 
-            #region Services
-            builder.Services.AddScoped<IUserService, UserService>();
-            builder.Services.AddScoped<ITokenService, TokenService>();
-            builder.Services.AddScoped<IPlaylistService, PlaylistService>();
-            builder.Services.AddScoped<IPlaylistSongsService, PlaylistSongsService>();
-            builder.Services.AddScoped<ILikedSongsService, LikedSongsService>();
-            builder.Services.AddScoped<IPlayHistoryService, PlayHistoryService>();
-            #endregion
+        #endregion
 
-            builder.Services.AddCors(options =>
-            {
-                options.AddPolicy("CorsPolicy",
-                    builder => builder.WithOrigins("https://neeraj779.github.io", "https://swar.vercel.app", "http://localhost:5173")
-                                      .WithMethods("GET", "POST", "PUT", "PATCH", "DELETE")
-                                      .WithHeaders("Authorization", "Content-Type"));
+        #region Repositories
 
-            });
+        builder.Services.AddScoped<IUserRepository, UserRepository>();
+        builder.Services.AddScoped<IRepository<int, User>, UserRepository>();
+        builder.Services.AddScoped<IPlaylistRepository, PlaylistRepository>();
+        builder.Services.AddScoped<IRepository<int, Playlist>, PlaylistRepository>();
+        builder.Services.AddScoped<IPlaylistSongsRepository, PlaylistSongsRepository>();
+        builder.Services.AddScoped<IRepository<int, LikedSong>, LikedSongsRepository>();
+        builder.Services.AddScoped<IRepository<int, PlayHistory>, PlayHistoryRepository>();
 
-            var app = builder.Build();
+        #endregion
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+        #region Services
 
-            app.UseCors("CorsPolicy");
-            app.UseAuthentication();
-            app.UseAuthorization();
+        builder.Services.AddScoped<IUserService, UserService>();
+        builder.Services.AddScoped<ITokenService, TokenService>();
+        builder.Services.AddScoped<IPlaylistService, PlaylistService>();
+        builder.Services.AddScoped<IPlaylistSongsService, PlaylistSongsService>();
+        builder.Services.AddScoped<ILikedSongsService, LikedSongsService>();
+        builder.Services.AddScoped<IPlayHistoryService, PlayHistoryService>();
 
+        #endregion
 
-            app.MapControllers();
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("CorsPolicy",
+                builder => builder.WithOrigins("https://neeraj779.github.io", "https://swar.vercel.app",
+                        "http://localhost:5173")
+                    .WithMethods("GET", "POST", "PUT", "PATCH", "DELETE")
+                    .WithHeaders("Authorization", "Content-Type"));
+        });
 
-            app.Run();
+        var app = builder.Build();
+
+        // Configure the HTTP request pipeline.
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
         }
+
+        app.UseCors("CorsPolicy");
+        app.UseAuthentication();
+        app.UseAuthorization();
+
+
+        app.MapControllers();
+
+        app.Run();
     }
 }

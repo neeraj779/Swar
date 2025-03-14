@@ -1,14 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Swar.API.Models.DBModels
+namespace Swar.API.Models.DBModels;
+
+public class LikedSong
 {
-    public class LikedSong
-    {
-        [Key]
-        public int LikeId { get; set; }
-        public string SongId { get; set; } = string.Empty;
-        public DateTime LikedDate { get; set; } = DateTime.UtcNow;
-        public int UserId { get; set; }
-        public User User { get; set; }
-    }
+    [Key] public int LikeId { get; set; }
+
+    public string SongId { get; set; } = string.Empty;
+    public DateTime LikedDate { get; set; } = DateTime.UtcNow;
+    public int UserId { get; set; }
+    public User User { get; set; }
 }

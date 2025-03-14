@@ -1,19 +1,19 @@
-﻿namespace Swar.API.Exceptions
+﻿namespace Swar.API.Exceptions;
+
+[Serializable]
+public class UnableToAddException : Exception
 {
-    [Serializable]
-    public class UnableToAddException : Exception
+    private string _message;
+
+    public UnableToAddException()
     {
-        string _message;
-        public UnableToAddException()
-        {
-            _message = "Uh oh! Something went wrong while adding; please try again.";
-        }
-
-        public UnableToAddException(string? message) : base(message)
-        {
-            _message = message ?? throw new ArgumentNullException(nameof(message));
-        }
-
-        public override string Message => _message;
+        _message = "Uh oh! Something went wrong while adding; please try again.";
     }
+
+    public UnableToAddException(string? message) : base(message)
+    {
+        _message = message ?? throw new ArgumentNullException(nameof(message));
+    }
+
+    public override string Message => _message;
 }

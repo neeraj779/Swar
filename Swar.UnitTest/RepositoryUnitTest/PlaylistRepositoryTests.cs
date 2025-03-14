@@ -4,196 +4,195 @@ using Swar.API.Exceptions;
 using Swar.API.Models.DBModels;
 using Swar.API.Repositories;
 
-namespace Swar.UnitTest.RepositoryUnitTest
+namespace Swar.UnitTest.RepositoryUnitTest;
+
+[TestFixture]
+public class PlaylistRepositoryTests
 {
-    [TestFixture]
-    public class PlaylistRepositoryTests
+    [SetUp]
+    public void Setup()
     {
-        private PlaylistRepository _repository;
-        private SwarContext _context;
+        var options = new DbContextOptionsBuilder<SwarContext>()
+            .UseInMemoryDatabase("PlaylistTestDatabase")
+            .Options;
 
-        [SetUp]
-        public void Setup()
+        _context = new SwarContext(options);
+        _repository = new PlaylistRepository(_context);
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        _context.Database.EnsureDeleted();
+        _context.Dispose();
+    }
+
+    private PlaylistRepository _repository;
+    private SwarContext _context;
+
+    [Test]
+    public async Task Add_ShouldAddEntity()
+    {
+        var playlist = new Playlist
         {
-            var options = new DbContextOptionsBuilder<SwarContext>()
-                .UseInMemoryDatabase(databaseName: "PlaylistTestDatabase")
-                .Options;
+            PlaylistId = 1,
+            PlaylistName = "My Playlist",
+            Description = "A great playlist",
+            IsPrivate = false,
+            CreatedAt = DateTime.Now
+        };
 
-            _context = new SwarContext(options);
-            _repository = new PlaylistRepository(_context);
-        }
+        var addedPlaylist = await _repository.Add(playlist);
 
-        [TearDown]
-        public void TearDown()
+        Assert.That(addedPlaylist, Is.Not.Null);
+        Assert.That(addedPlaylist.PlaylistId, Is.EqualTo(playlist.PlaylistId));
+        Assert.That(addedPlaylist.PlaylistName, Is.EqualTo(playlist.PlaylistName));
+    }
+
+    [Test]
+    public async Task Add_ShouldThrowExceptionWhenEntityAlreadyExists()
+    {
+        var playlist = new Playlist
         {
-            _context.Database.EnsureDeleted();
-            _context.Dispose();
-        }
+            PlaylistId = 1,
+            PlaylistName = "My Playlist",
+            Description = "A great playlist",
+            IsPrivate = false,
+            CreatedAt = DateTime.Now
+        };
 
-        [Test]
-        public async Task Add_ShouldAddEntity()
+        await _repository.Add(playlist);
+
+        Assert.ThrowsAsync<ArgumentException>(async () => await _repository.Add(playlist));
+    }
+
+    [Test]
+    public async Task GetById_ShouldReturnEntity_WhenExists()
+    {
+        var playlist = new Playlist
         {
-            var playlist = new Playlist
-            {
-                PlaylistId = 1,
-                PlaylistName = "My Playlist",
-                Description = "A great playlist",
-                IsPrivate = false,
-                CreatedAt = DateTime.Now,
-            };
+            PlaylistId = 1,
+            PlaylistName = "My Playlist",
+            Description = "A great playlist",
+            IsPrivate = false,
+            CreatedAt = DateTime.Now,
+            UserId = 1
+        };
 
-            var addedPlaylist = await _repository.Add(playlist);
+        await _repository.Add(playlist);
 
-            Assert.That(addedPlaylist, Is.Not.Null);
-            Assert.That(addedPlaylist.PlaylistId, Is.EqualTo(playlist.PlaylistId));
-            Assert.That(addedPlaylist.PlaylistName, Is.EqualTo(playlist.PlaylistName));
-        }
+        var result = await _repository.GetById(1);
 
-        [Test]
-        public async Task Add_ShouldThrowExceptionWhenEntityAlreadyExists()
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.PlaylistId, Is.EqualTo(playlist.PlaylistId));
+        Assert.That(result.PlaylistName, Is.EqualTo(playlist.PlaylistName));
+    }
+
+    [Test]
+    public async Task GetById_ShouldReturnNull_WhenEntityNotFound()
+    {
+        var result = await _repository.GetById(999);
+
+        Assert.That(result, Is.Null);
+    }
+
+    [Test]
+    public async Task Update_ShouldModifyEntity()
+    {
+        var playlist = new Playlist
         {
-            var playlist = new Playlist
-            {
-                PlaylistId = 1,
-                PlaylistName = "My Playlist",
-                Description = "A great playlist",
-                IsPrivate = false,
-                CreatedAt = DateTime.Now,
-            };
+            PlaylistId = 1,
+            PlaylistName = "My Playlist",
+            Description = "A great playlist",
+            IsPrivate = false,
+            CreatedAt = DateTime.Now,
+            UserId = 1
+        };
 
-            await _repository.Add(playlist);
+        await _repository.Add(playlist);
 
-            Assert.ThrowsAsync<ArgumentException>(async () => await _repository.Add(playlist));
-        }
+        playlist.PlaylistName = "Updated Playlist";
+        await _repository.Update(playlist);
 
-        [Test]
-        public async Task GetById_ShouldReturnEntity_WhenExists()
+        var updatedPlaylist = await _repository.GetById(1);
+
+        Assert.That(updatedPlaylist, Is.Not.Null);
+        Assert.That(updatedPlaylist.PlaylistName, Is.EqualTo("Updated Playlist"));
+    }
+
+    [Test]
+    public void Update_ShouldThrowException_WhenEntityNotFound()
+    {
+        var playlist = new Playlist
         {
-            var playlist = new Playlist
-            {
-                PlaylistId = 1,
-                PlaylistName = "My Playlist",
-                Description = "A great playlist",
-                IsPrivate = false,
-                CreatedAt = DateTime.Now,
-                UserId = 1
-            };
+            PlaylistId = 999,
+            PlaylistName = "Nonexistent Playlist",
+            Description = "Doesn't exist",
+            IsPrivate = false,
+            CreatedAt = DateTime.Now,
+            UserId = 1
+        };
 
-            await _repository.Add(playlist);
+        Assert.ThrowsAsync<DbUpdateConcurrencyException>(async () => await _repository.Update(playlist));
+    }
 
-            var result = await _repository.GetById(1);
-
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.PlaylistId, Is.EqualTo(playlist.PlaylistId));
-            Assert.That(result.PlaylistName, Is.EqualTo(playlist.PlaylistName));
-        }
-
-        [Test]
-        public async Task GetById_ShouldReturnNull_WhenEntityNotFound()
+    [Test]
+    public async Task Delete_ShouldRemoveEntity_WhenExists()
+    {
+        var playlist = new Playlist
         {
-            var result = await _repository.GetById(999);
+            PlaylistId = 1,
+            PlaylistName = "My Playlist",
+            Description = "A great playlist",
+            IsPrivate = false,
+            CreatedAt = DateTime.Now,
+            UserId = 1
+        };
 
-            Assert.That(result, Is.Null);
-        }
+        await _repository.Add(playlist);
+        await _repository.Delete(1);
 
-        [Test]
-        public async Task Update_ShouldModifyEntity()
+        var deletedPlaylist = await _repository.GetById(1);
+
+        Assert.That(deletedPlaylist, Is.Null);
+    }
+
+    [Test]
+    public void Delete_ShouldThrowException_WhenEntityNotFound()
+    {
+        Assert.ThrowsAsync<EntityNotFoundException>(async () => await _repository.Delete(999));
+    }
+
+    [Test]
+    public async Task GetAll_ShouldReturnAllEntities()
+    {
+        var playlist1 = new Playlist
         {
-            var playlist = new Playlist
-            {
-                PlaylistId = 1,
-                PlaylistName = "My Playlist",
-                Description = "A great playlist",
-                IsPrivate = false,
-                CreatedAt = DateTime.Now,
-                UserId = 1
-            };
+            PlaylistId = 1,
+            PlaylistName = "My Playlist",
+            Description = "A great playlist",
+            IsPrivate = false,
+            CreatedAt = DateTime.Now,
+            UserId = 1
+        };
 
-            await _repository.Add(playlist);
-
-            playlist.PlaylistName = "Updated Playlist";
-            await _repository.Update(playlist);
-
-            var updatedPlaylist = await _repository.GetById(1);
-
-            Assert.That(updatedPlaylist, Is.Not.Null);
-            Assert.That(updatedPlaylist.PlaylistName, Is.EqualTo("Updated Playlist"));
-        }
-
-        [Test]
-        public void Update_ShouldThrowException_WhenEntityNotFound()
+        var playlist2 = new Playlist
         {
-            var playlist = new Playlist
-            {
-                PlaylistId = 999,
-                PlaylistName = "Nonexistent Playlist",
-                Description = "Doesn't exist",
-                IsPrivate = false,
-                CreatedAt = DateTime.Now,
-                UserId = 1
-            };
+            PlaylistId = 2,
+            PlaylistName = "Another Playlist",
+            Description = "Another great playlist",
+            IsPrivate = true,
+            CreatedAt = DateTime.Now,
+            UserId = 1
+        };
 
-            Assert.ThrowsAsync<DbUpdateConcurrencyException>(async () => await _repository.Update(playlist));
-        }
+        await _repository.Add(playlist1);
+        await _repository.Add(playlist2);
 
-        [Test]
-        public async Task Delete_ShouldRemoveEntity_WhenExists()
-        {
-            var playlist = new Playlist
-            {
-                PlaylistId = 1,
-                PlaylistName = "My Playlist",
-                Description = "A great playlist",
-                IsPrivate = false,
-                CreatedAt = DateTime.Now,
-                UserId = 1
-            };
+        var allPlaylists = await _repository.GetAll();
 
-            await _repository.Add(playlist);
-            await _repository.Delete(1);
-
-            var deletedPlaylist = await _repository.GetById(1);
-
-            Assert.That(deletedPlaylist, Is.Null);
-        }
-
-        [Test]
-        public void Delete_ShouldThrowException_WhenEntityNotFound()
-        {
-            Assert.ThrowsAsync<EntityNotFoundException>(async () => await _repository.Delete(999));
-        }
-
-        [Test]
-        public async Task GetAll_ShouldReturnAllEntities()
-        {
-            var playlist1 = new Playlist
-            {
-                PlaylistId = 1,
-                PlaylistName = "My Playlist",
-                Description = "A great playlist",
-                IsPrivate = false,
-                CreatedAt = DateTime.Now,
-                UserId = 1
-            };
-
-            var playlist2 = new Playlist
-            {
-                PlaylistId = 2,
-                PlaylistName = "Another Playlist",
-                Description = "Another great playlist",
-                IsPrivate = true,
-                CreatedAt = DateTime.Now,
-                UserId = 1
-            };
-
-            await _repository.Add(playlist1);
-            await _repository.Add(playlist2);
-
-            var allPlaylists = await _repository.GetAll();
-
-            Assert.That(allPlaylists.Count(), Is.EqualTo(2));
-            Assert.That(allPlaylists, Does.Contain(playlist1));
-            Assert.That(allPlaylists, Does.Contain(playlist2));
-        }
+        Assert.That(allPlaylists.Count(), Is.EqualTo(2));
+        Assert.That(allPlaylists, Does.Contain(playlist1));
+        Assert.That(allPlaylists, Does.Contain(playlist2));
     }
 }

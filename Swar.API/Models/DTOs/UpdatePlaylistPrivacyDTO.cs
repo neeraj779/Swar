@@ -1,7 +1,6 @@
-﻿namespace Swar.API.Models.DTOs
+﻿namespace Swar.API.Models.DTOs;
+
+public class UpdatePlaylistPrivacyDTO
 {
-    public class UpdatePlaylistPrivacyDTO
-    {
-        public bool IsPrivate { get; set; }
-    }
+    public bool IsPrivate { get; set; }
 }

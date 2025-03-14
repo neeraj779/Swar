@@ -1,19 +1,18 @@
-﻿namespace Swar.API.Exceptions
+﻿namespace Swar.API.Exceptions;
+
+public class InvalidCredentialsException : Exception
 {
-    public class InvalidCredentialsException : Exception
+    private readonly string _message;
+
+    public InvalidCredentialsException()
     {
-        string _message;
-
-        public InvalidCredentialsException()
-        {
-            _message = "Email or password is incorrect";
-        }
-
-        public InvalidCredentialsException(string message)
-        {
-            _message = message;
-        }
-
-        public override string Message => _message;
+        _message = "Email or password is incorrect";
     }
+
+    public InvalidCredentialsException(string message)
+    {
+        _message = message;
+    }
+
+    public override string Message => _message;
 }

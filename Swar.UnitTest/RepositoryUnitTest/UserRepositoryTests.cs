@@ -5,238 +5,237 @@ using Swar.API.Models.DBModels;
 using Swar.API.Models.ENUMs;
 using Swar.API.Repositories;
 
-namespace Swar.UnitTest.RepositoryUnitTest
+namespace Swar.UnitTest.RepositoryUnitTest;
+
+public class UserRepositoryTests
 {
-    public class UserRepositoryTests
+    private SwarContext _context;
+    private UserRepository _repository;
+
+    [SetUp]
+    public void Setup()
     {
-        private UserRepository _repository;
-        private SwarContext _context;
+        var options = new DbContextOptionsBuilder<SwarContext>()
+            .UseInMemoryDatabase("UserTestDatabase")
+            .Options;
 
-        [SetUp]
-        public void Setup()
+        _context = new SwarContext(options);
+        _repository = new UserRepository(_context);
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        _context.Database.EnsureDeleted();
+        _context.Dispose();
+    }
+
+    [Test]
+    public async Task Add_ShouldAddEntity()
+    {
+        var user = new User
         {
-            var options = new DbContextOptionsBuilder<SwarContext>()
-                .UseInMemoryDatabase(databaseName: "UserTestDatabase")
-                .Options;
+            UserId = 1,
+            Name = "John Doe",
+            Email = "john.doe@example.com",
+            HashedPassword = new byte[] { 1, 2, 3 },
+            PasswordHashKey = new byte[] { 1, 2, 3 },
+            UserStatus = UserStatusEnum.UserStatus.Active,
+            Role = UserRoleEnum.UserRole.User,
+            RegistrationDate = DateTime.Now
+        };
 
-            _context = new SwarContext(options);
-            _repository = new UserRepository(_context);
-        }
+        var addedUser = await _repository.Add(user);
 
-        [TearDown]
-        public void TearDown()
+        Assert.NotNull(addedUser);
+        Assert.That(addedUser.UserId, Is.EqualTo(user.UserId));
+    }
+
+    [Test]
+    public async Task Add_ShouldThrowExceptionWhenUserAlreadyExists()
+    {
+        var user = new User
         {
-            _context.Database.EnsureDeleted();
-            _context.Dispose();
-        }
+            UserId = 1,
+            Name = "John Doe",
+            Email = "john.doe@example.com",
+            HashedPassword = new byte[] { 1, 2, 3 },
+            PasswordHashKey = new byte[] { 1, 2, 3 },
+            UserStatus = UserStatusEnum.UserStatus.Active,
+            Role = UserRoleEnum.UserRole.User,
+            RegistrationDate = DateTime.Now
+        };
 
-        [Test]
-        public async Task Add_ShouldAddEntity()
+        await _repository.Add(user);
+
+        Assert.ThrowsAsync<ArgumentException>(async () => await _repository.Add(user));
+    }
+
+    [Test]
+    public async Task GetById_ShouldReturnEntity()
+    {
+        var user = new User
         {
-            var user = new User
-            {
-                UserId = 1,
-                Name = "John Doe",
-                Email = "john.doe@example.com",
-                HashedPassword = new byte[] { 1, 2, 3 },
-                PasswordHashKey = new byte[] { 1, 2, 3 },
-                UserStatus = UserStatusEnum.UserStatus.Active,
-                Role = UserRoleEnum.UserRole.User,
-                RegistrationDate = DateTime.Now
-            };
+            UserId = 1,
+            Name = "John Doe",
+            Email = "john.doe@example.com",
+            HashedPassword = new byte[] { 1, 2, 3 },
+            PasswordHashKey = new byte[] { 1, 2, 3 },
+            UserStatus = UserStatusEnum.UserStatus.Active,
+            Role = UserRoleEnum.UserRole.User,
+            RegistrationDate = DateTime.Now
+        };
 
-            var addedUser = await _repository.Add(user);
+        await _repository.Add(user);
+        var retrievedUser = await _repository.GetById(1);
 
-            Assert.NotNull(addedUser);
-            Assert.That(addedUser.UserId, Is.EqualTo(user.UserId));
-        }
+        Assert.NotNull(retrievedUser);
+        Assert.That(retrievedUser.UserId, Is.EqualTo(user.UserId));
+    }
 
-        [Test]
-        public async Task Add_ShouldThrowExceptionWhenUserAlreadyExists()
+    [Test]
+    public async Task GetById_ShouldReturnNullWhenEntityNotFound()
+    {
+        var retrievedUser = await _repository.GetById(999);
+
+        Assert.Null(retrievedUser);
+    }
+
+    [Test]
+    public async Task Update_ShouldModifyEntity()
+    {
+        var user = new User
         {
-            var user = new User
-            {
-                UserId = 1,
-                Name = "John Doe",
-                Email = "john.doe@example.com",
-                HashedPassword = new byte[] { 1, 2, 3 },
-                PasswordHashKey = new byte[] { 1, 2, 3 },
-                UserStatus = UserStatusEnum.UserStatus.Active,
-                Role = UserRoleEnum.UserRole.User,
-                RegistrationDate = DateTime.Now
-            };
+            UserId = 1,
+            Name = "John Doe",
+            Email = "john.doe@example.com",
+            HashedPassword = new byte[] { 1, 2, 3 },
+            PasswordHashKey = new byte[] { 1, 2, 3 },
+            UserStatus = UserStatusEnum.UserStatus.Active,
+            Role = UserRoleEnum.UserRole.User,
+            RegistrationDate = DateTime.Now
+        };
 
-            await _repository.Add(user);
+        await _repository.Add(user);
 
-            Assert.ThrowsAsync<ArgumentException>(async () => await _repository.Add(user));
-        }
+        user.Name = "Jane Doe";
+        await _repository.Update(user);
+        var updatedUser = await _repository.GetById(1);
 
-        [Test]
-        public async Task GetById_ShouldReturnEntity()
+        Assert.NotNull(updatedUser);
+        Assert.That(updatedUser.Name, Is.EqualTo("Jane Doe"));
+    }
+
+    [Test]
+    public void Update_ShouldThrowExceptionWhenEntityNotFound()
+    {
+        var user = new User
         {
-            var user = new User
-            {
-                UserId = 1,
-                Name = "John Doe",
-                Email = "john.doe@example.com",
-                HashedPassword = new byte[] { 1, 2, 3 },
-                PasswordHashKey = new byte[] { 1, 2, 3 },
-                UserStatus = UserStatusEnum.UserStatus.Active,
-                Role = UserRoleEnum.UserRole.User,
-                RegistrationDate = DateTime.Now
-            };
+            UserId = 999,
+            Name = "Nonexistent User",
+            Email = "nonexistent@example.com",
+            HashedPassword = new byte[] { 0 },
+            PasswordHashKey = new byte[] { 0 },
+            UserStatus = UserStatusEnum.UserStatus.Inactive,
+            Role = UserRoleEnum.UserRole.User,
+            RegistrationDate = DateTime.Now
+        };
 
-            await _repository.Add(user);
-            var retrievedUser = await _repository.GetById(1);
+        Assert.ThrowsAsync<DbUpdateConcurrencyException>(async () => await _repository.Update(user));
+    }
 
-            Assert.NotNull(retrievedUser);
-            Assert.That(retrievedUser.UserId, Is.EqualTo(user.UserId));
-        }
-
-        [Test]
-        public async Task GetById_ShouldReturnNullWhenEntityNotFound()
+    [Test]
+    public async Task Delete_ShouldRemoveEntity()
+    {
+        var user = new User
         {
-            var retrievedUser = await _repository.GetById(999);
+            UserId = 1,
+            Name = "John Doe",
+            Email = "john.doe@example.com",
+            HashedPassword = new byte[] { 1, 2, 3 },
+            PasswordHashKey = new byte[] { 1, 2, 3 },
+            UserStatus = UserStatusEnum.UserStatus.Active,
+            Role = UserRoleEnum.UserRole.User,
+            RegistrationDate = DateTime.Now
+        };
 
-            Assert.Null(retrievedUser);
-        }
+        await _repository.Add(user);
+        await _repository.Delete(1);
+        var deletedUser = await _repository.GetById(1);
 
-        [Test]
-        public async Task Update_ShouldModifyEntity()
+        Assert.Null(deletedUser);
+    }
+
+    [Test]
+    public void Delete_ShouldThrowExceptionWhenEntityNotFound()
+    {
+        Assert.ThrowsAsync<EntityNotFoundException>(async () => await _repository.Delete(999));
+    }
+
+    [Test]
+    public async Task GetAll_ShouldReturnAllEntities()
+    {
+        var user1 = new User
         {
-            var user = new User
-            {
-                UserId = 1,
-                Name = "John Doe",
-                Email = "john.doe@example.com",
-                HashedPassword = new byte[] { 1, 2, 3 },
-                PasswordHashKey = new byte[] { 1, 2, 3 },
-                UserStatus = UserStatusEnum.UserStatus.Active,
-                Role = UserRoleEnum.UserRole.User,
-                RegistrationDate = DateTime.Now
-            };
+            UserId = 1,
+            Name = "John Doe",
+            Email = "john.doe@example.com",
+            HashedPassword = new byte[] { 1, 2, 3 },
+            PasswordHashKey = new byte[] { 1, 2, 3 },
+            UserStatus = UserStatusEnum.UserStatus.Active,
+            Role = UserRoleEnum.UserRole.User,
+            RegistrationDate = DateTime.Now
+        };
 
-            await _repository.Add(user);
-
-            user.Name = "Jane Doe";
-            await _repository.Update(user);
-            var updatedUser = await _repository.GetById(1);
-
-            Assert.NotNull(updatedUser);
-            Assert.That(updatedUser.Name, Is.EqualTo("Jane Doe"));
-        }
-
-        [Test]
-        public void Update_ShouldThrowExceptionWhenEntityNotFound()
+        var user2 = new User
         {
-            var user = new User
-            {
-                UserId = 999,
-                Name = "Nonexistent User",
-                Email = "nonexistent@example.com",
-                HashedPassword = new byte[] { 0 },
-                PasswordHashKey = new byte[] { 0 },
-                UserStatus = UserStatusEnum.UserStatus.Inactive,
-                Role = UserRoleEnum.UserRole.User,
-                RegistrationDate = DateTime.Now
-            };
+            UserId = 2,
+            Name = "Jane Doe",
+            Email = "jane.doe@example.com",
+            HashedPassword = new byte[] { 4, 5, 6 },
+            PasswordHashKey = new byte[] { 4, 5, 6 },
+            UserStatus = UserStatusEnum.UserStatus.Active,
+            Role = UserRoleEnum.UserRole.User,
+            RegistrationDate = DateTime.Now
+        };
 
-            Assert.ThrowsAsync<DbUpdateConcurrencyException>(async () => await _repository.Update(user));
-        }
+        await _repository.Add(user1);
+        await _repository.Add(user2);
 
-        [Test]
-        public async Task Delete_ShouldRemoveEntity()
+        var allUsers = await _repository.GetAll();
+
+        Assert.That(allUsers.Count(), Is.EqualTo(2));
+        Assert.Contains(user1, allUsers.ToList());
+        Assert.Contains(user2, allUsers.ToList());
+    }
+
+    [Test]
+    public async Task GetByEmail_ShouldReturnUser()
+    {
+        var user = new User
         {
-            var user = new User
-            {
-                UserId = 1,
-                Name = "John Doe",
-                Email = "john.doe@example.com",
-                HashedPassword = new byte[] { 1, 2, 3 },
-                PasswordHashKey = new byte[] { 1, 2, 3 },
-                UserStatus = UserStatusEnum.UserStatus.Active,
-                Role = UserRoleEnum.UserRole.User,
-                RegistrationDate = DateTime.Now
-            };
+            UserId = 1,
+            Name = "John Doe",
+            Email = "john.doe@example.com",
+            HashedPassword = new byte[] { 1, 2, 3 },
+            PasswordHashKey = new byte[] { 1, 2, 3 },
+            UserStatus = UserStatusEnum.UserStatus.Active,
+            Role = UserRoleEnum.UserRole.User,
+            RegistrationDate = DateTime.Now
+        };
 
-            await _repository.Add(user);
-            await _repository.Delete(1);
-            var deletedUser = await _repository.GetById(1);
+        await _repository.Add(user);
+        var retrievedUser = await _repository.GetByEmail("john.doe@example.com");
 
-            Assert.Null(deletedUser);
-        }
+        Assert.NotNull(retrievedUser);
+        Assert.That(retrievedUser.UserId, Is.EqualTo(user.UserId));
+    }
 
-        [Test]
-        public void Delete_ShouldThrowExceptionWhenEntityNotFound()
-        {
-            Assert.ThrowsAsync<EntityNotFoundException>(async () => await _repository.Delete(999));
-        }
+    [Test]
+    public async Task GetByEmail_ShouldReturnNullWhenEmailNotFound()
+    {
+        var retrievedUser = await _repository.GetByEmail("nonexistent@example.com");
 
-        [Test]
-        public async Task GetAll_ShouldReturnAllEntities()
-        {
-            var user1 = new User
-            {
-                UserId = 1,
-                Name = "John Doe",
-                Email = "john.doe@example.com",
-                HashedPassword = new byte[] { 1, 2, 3 },
-                PasswordHashKey = new byte[] { 1, 2, 3 },
-                UserStatus = UserStatusEnum.UserStatus.Active,
-                Role = UserRoleEnum.UserRole.User,
-                RegistrationDate = DateTime.Now
-            };
-
-            var user2 = new User
-            {
-                UserId = 2,
-                Name = "Jane Doe",
-                Email = "jane.doe@example.com",
-                HashedPassword = new byte[] { 4, 5, 6 },
-                PasswordHashKey = new byte[] { 4, 5, 6 },
-                UserStatus = UserStatusEnum.UserStatus.Active,
-                Role = UserRoleEnum.UserRole.User,
-                RegistrationDate = DateTime.Now
-            };
-
-            await _repository.Add(user1);
-            await _repository.Add(user2);
-
-            var allUsers = await _repository.GetAll();
-
-            Assert.That(allUsers.Count(), Is.EqualTo(2));
-            Assert.Contains(user1, allUsers.ToList());
-            Assert.Contains(user2, allUsers.ToList());
-        }
-
-        [Test]
-        public async Task GetByEmail_ShouldReturnUser()
-        {
-            var user = new User
-            {
-                UserId = 1,
-                Name = "John Doe",
-                Email = "john.doe@example.com",
-                HashedPassword = new byte[] { 1, 2, 3 },
-                PasswordHashKey = new byte[] { 1, 2, 3 },
-                UserStatus = UserStatusEnum.UserStatus.Active,
-                Role = UserRoleEnum.UserRole.User,
-                RegistrationDate = DateTime.Now
-            };
-
-            await _repository.Add(user);
-            var retrievedUser = await _repository.GetByEmail("john.doe@example.com");
-
-            Assert.NotNull(retrievedUser);
-            Assert.That(retrievedUser.UserId, Is.EqualTo(user.UserId));
-        }
-
-        [Test]
-        public async Task GetByEmail_ShouldReturnNullWhenEmailNotFound()
-        {
-            var retrievedUser = await _repository.GetByEmail("nonexistent@example.com");
-
-            Assert.Null(retrievedUser);
-        }
+        Assert.Null(retrievedUser);
     }
 }

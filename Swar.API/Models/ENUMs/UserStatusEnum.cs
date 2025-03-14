@@ -1,11 +1,10 @@
-﻿namespace Swar.API.Models.ENUMs
+﻿namespace Swar.API.Models.ENUMs;
+
+public class UserStatusEnum
 {
-    public class UserStatusEnum
+    public enum UserStatus
     {
-        public enum UserStatus
-        {
-            Active,
-            Inactive
-        }
+        Active,
+        Inactive
     }
 }
