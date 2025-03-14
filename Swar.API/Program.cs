@@ -109,7 +109,7 @@ namespace Swar.API
 
             #region Context
             builder.Services.AddDbContext<SwarContext>(
-                options => options.UseNpgsql(builder.Configuration.GetConnectionString("defaultConnection")));
+                options => options.UseSqlite(builder.Configuration.GetConnectionString("defaultConnection")));
             #endregion
 
             #region Repositories
